@@ -10,289 +10,318 @@
                                      10 	.globl _main
                                      11 	.globl _delay_ms
                                      12 	.globl _uart_read
-                                     13 	.globl _uart_read_c
-                                     14 	.globl _uart_write
-                                     15 	.globl _uart_write_c
-                                     16 ;--------------------------------------------------------
-                                     17 ; ram data
-                                     18 ;--------------------------------------------------------
-                                     19 	.area DATA
-                                     20 ;--------------------------------------------------------
-                                     21 ; ram data
-                                     22 ;--------------------------------------------------------
-                                     23 	.area INITIALIZED
-                                     24 ;--------------------------------------------------------
-                                     25 ; Stack segment in internal ram
-                                     26 ;--------------------------------------------------------
-                                     27 	.area SSEG
-      000000                         28 __start__stack:
-      000000                         29 	.ds	1
-                                     30 
-                                     31 ;--------------------------------------------------------
-                                     32 ; absolute external ram data
-                                     33 ;--------------------------------------------------------
-                                     34 	.area DABS (ABS)
-                                     35 
-                                     36 ; default segment ordering for linker
-                                     37 	.area HOME
-                                     38 	.area GSINIT
-                                     39 	.area GSFINAL
-                                     40 	.area CONST
-                                     41 	.area INITIALIZER
-                                     42 	.area CODE
-                                     43 
-                                     44 ;--------------------------------------------------------
-                                     45 ; interrupt vector
-                                     46 ;--------------------------------------------------------
-                                     47 	.area HOME
-      000000                         48 __interrupt_vect:
-      000000 82v00u00u00             49 	int s_GSINIT ; reset
-                                     50 ;--------------------------------------------------------
-                                     51 ; global & static initialisations
-                                     52 ;--------------------------------------------------------
-                                     53 	.area HOME
-                                     54 	.area GSINIT
-                                     55 	.area GSFINAL
-                                     56 	.area GSINIT
-      000000 CDr00r00         [ 4]   57 	call	___sdcc_external_startup
-      000003 4D               [ 1]   58 	tnz	a
-      000004 27 03            [ 1]   59 	jreq	__sdcc_init_data
-      000006 CCr00r04         [ 2]   60 	jp	__sdcc_program_startup
-      000009                         61 __sdcc_init_data:
-                                     62 ; stm8_genXINIT() start
-      000009 AEr00r00         [ 2]   63 	ldw x, #l_DATA
-      00000C 27 07            [ 1]   64 	jreq	00002$
-      00000E                         65 00001$:
-      00000E 72 4FuFFuFF      [ 1]   66 	clr (s_DATA - 1, x)
-      000012 5A               [ 2]   67 	decw x
-      000013 26 F9            [ 1]   68 	jrne	00001$
-      000015                         69 00002$:
-      000015 AEr00r00         [ 2]   70 	ldw	x, #l_INITIALIZER
-      000018 27 09            [ 1]   71 	jreq	00004$
-      00001A                         72 00003$:
-      00001A D6uFFuFF         [ 1]   73 	ld	a, (s_INITIALIZER - 1, x)
-      00001D D7uFFuFF         [ 1]   74 	ld	(s_INITIALIZED - 1, x), a
-      000020 5A               [ 2]   75 	decw	x
-      000021 26 F7            [ 1]   76 	jrne	00003$
-      000023                         77 00004$:
-                                     78 ; stm8_genXINIT() end
-                                     79 	.area GSFINAL
-      000000 CCr00r04         [ 2]   80 	jp	__sdcc_program_startup
-                                     81 ;--------------------------------------------------------
-                                     82 ; Home
-                                     83 ;--------------------------------------------------------
+                                     13 	.globl _uart_write
+                                     14 	.globl _uart_write_c
+                                     15 ;--------------------------------------------------------
+                                     16 ; ram data
+                                     17 ;--------------------------------------------------------
+                                     18 	.area DATA
+                                     19 ;--------------------------------------------------------
+                                     20 ; ram data
+                                     21 ;--------------------------------------------------------
+                                     22 	.area INITIALIZED
+                                     23 ;--------------------------------------------------------
+                                     24 ; Stack segment in internal ram
+                                     25 ;--------------------------------------------------------
+                                     26 	.area SSEG
+      000000                         27 __start__stack:
+      000000                         28 	.ds	1
+                                     29 
+                                     30 ;--------------------------------------------------------
+                                     31 ; absolute external ram data
+                                     32 ;--------------------------------------------------------
+                                     33 	.area DABS (ABS)
+                                     34 
+                                     35 ; default segment ordering for linker
+                                     36 	.area HOME
+                                     37 	.area GSINIT
+                                     38 	.area GSFINAL
+                                     39 	.area CONST
+                                     40 	.area INITIALIZER
+                                     41 	.area CODE
+                                     42 
+                                     43 ;--------------------------------------------------------
+                                     44 ; interrupt vector
+                                     45 ;--------------------------------------------------------
+                                     46 	.area HOME
+      000000                         47 __interrupt_vect:
+      000000 82v00u00u00             48 	int s_GSINIT ; reset
+                                     49 ;--------------------------------------------------------
+                                     50 ; global & static initialisations
+                                     51 ;--------------------------------------------------------
+                                     52 	.area HOME
+                                     53 	.area GSINIT
+                                     54 	.area GSFINAL
+                                     55 	.area GSINIT
+      000000 CDr00r00         [ 4]   56 	call	___sdcc_external_startup
+      000003 4D               [ 1]   57 	tnz	a
+      000004 27 03            [ 1]   58 	jreq	__sdcc_init_data
+      000006 CCr00r04         [ 2]   59 	jp	__sdcc_program_startup
+      000009                         60 __sdcc_init_data:
+                                     61 ; stm8_genXINIT() start
+      000009 AEr00r00         [ 2]   62 	ldw x, #l_DATA
+      00000C 27 07            [ 1]   63 	jreq	00002$
+      00000E                         64 00001$:
+      00000E 72 4FuFFuFF      [ 1]   65 	clr (s_DATA - 1, x)
+      000012 5A               [ 2]   66 	decw x
+      000013 26 F9            [ 1]   67 	jrne	00001$
+      000015                         68 00002$:
+      000015 AEr00r00         [ 2]   69 	ldw	x, #l_INITIALIZER
+      000018 27 09            [ 1]   70 	jreq	00004$
+      00001A                         71 00003$:
+      00001A D6uFFuFF         [ 1]   72 	ld	a, (s_INITIALIZER - 1, x)
+      00001D D7uFFuFF         [ 1]   73 	ld	(s_INITIALIZED - 1, x), a
+      000020 5A               [ 2]   74 	decw	x
+      000021 26 F7            [ 1]   75 	jrne	00003$
+      000023                         76 00004$:
+                                     77 ; stm8_genXINIT() end
+                                     78 	.area GSFINAL
+      000000 CCr00r04         [ 2]   79 	jp	__sdcc_program_startup
+                                     80 ;--------------------------------------------------------
+                                     81 ; Home
+                                     82 ;--------------------------------------------------------
+                                     83 	.area HOME
                                      84 	.area HOME
-                                     85 	.area HOME
-      000004                         86 __sdcc_program_startup:
-      000004 CCr00r82         [ 2]   87 	jp	_main
-                                     88 ;	return from main will return to caller
-                                     89 ;--------------------------------------------------------
-                                     90 ; code
-                                     91 ;--------------------------------------------------------
-                                     92 	.area CODE
-                                     93 ;	src/main.c: 4: void uart_write_c(unsigned char c)
-                                     94 ;	-----------------------------------------
-                                     95 ;	 function uart_write_c
-                                     96 ;	-----------------------------------------
-      000000                         97 _uart_write_c:
-      000000 88               [ 1]   98 	push	a
-      000001 6B 01            [ 1]   99 	ld	(0x01, sp), a
-                                    100 ;	src/main.c: 6: while(!(USART1_SR & USART_SR_TXE));
-      000003                        101 00101$:
-      000003 C6 52 30         [ 1]  102 	ld	a, 0x5230
-      000006 2A FB            [ 1]  103 	jrpl	00101$
-                                    104 ;	src/main.c: 7: USART1_DR = c;
-      000008 AE 52 31         [ 2]  105 	ldw	x, #0x5231
-      00000B 7B 01            [ 1]  106 	ld	a, (0x01, sp)
-      00000D F7               [ 1]  107 	ld	(x), a
-                                    108 ;	src/main.c: 8: }
-      00000E 84               [ 1]  109 	pop	a
-      00000F 81               [ 4]  110 	ret
-                                    111 ;	src/main.c: 10: void uart_write(const char *str)
-                                    112 ;	-----------------------------------------
-                                    113 ;	 function uart_write
-                                    114 ;	-----------------------------------------
-      000010                        115 _uart_write:
-                                    116 ;	src/main.c: 12: while(*str)
-      000010                        117 00101$:
-      000010 F6               [ 1]  118 	ld	a, (x)
-      000011 26 01            [ 1]  119 	jrne	00121$
-      000013 81               [ 4]  120 	ret
-      000014                        121 00121$:
-                                    122 ;	src/main.c: 14: uart_write_c(*str);
-      000014 89               [ 2]  123 	pushw	x
-      000015 CDr00r00         [ 4]  124 	call	_uart_write_c
-      000018 85               [ 2]  125 	popw	x
-                                    126 ;	src/main.c: 15: str++;
-      000019 5C               [ 1]  127 	incw	x
-      00001A 20 F4            [ 2]  128 	jra	00101$
-                                    129 ;	src/main.c: 17: }
-      00001C 81               [ 4]  130 	ret
-                                    131 ;	src/main.c: 19: void uart_read_c(unsigned char *c)
-                                    132 ;	-----------------------------------------
-                                    133 ;	 function uart_read_c
-                                    134 ;	-----------------------------------------
-      00001D                        135 _uart_read_c:
-                                    136 ;	src/main.c: 21: while (!(USART1_SR & USART_SR_RXNE));    // USART_SR[5]:RXNE   Read data register not empty
-      00001D                        137 00101$:
-      00001D 72 0B 52 30 FB   [ 2]  138 	btjf	0x5230, #5, 00101$
-                                    139 ;	src/main.c: 23: *c = USART1_DR;
-      000022 C6 52 31         [ 1]  140 	ld	a, 0x5231
-      000025 F7               [ 1]  141 	ld	(x), a
-                                    142 ;	src/main.c: 24: }
-      000026 81               [ 4]  143 	ret
-                                    144 ;	src/main.c: 26: void uart_read(unsigned char *buf, unsigned char len)
-                                    145 ;	-----------------------------------------
-                                    146 ;	 function uart_read
+      000004                         85 __sdcc_program_startup:
+      000004 CCr00r95         [ 2]   86 	jp	_main
+                                     87 ;	return from main will return to caller
+                                     88 ;--------------------------------------------------------
+                                     89 ; code
+                                     90 ;--------------------------------------------------------
+                                     91 	.area CODE
+                                     92 ;	src/main.c: 4: static void UART1_ClearIdle(void)
+                                     93 ;	-----------------------------------------
+                                     94 ;	 function UART1_ClearIdle
+                                     95 ;	-----------------------------------------
+      000000                         96 _UART1_ClearIdle:
+      000000 88               [ 1]   97 	push	a
+                                     98 ;	src/main.c: 8: tmp = USART1_SR;  // MUST read SR first
+      000001 C6 52 30         [ 1]   99 	ld	a, 0x5230
+      000004 6B 01            [ 1]  100 	ld	(0x01, sp), a
+                                    101 ;	src/main.c: 9: tmp = USART1_DR;  // THEN read DR
+      000006 C6 52 31         [ 1]  102 	ld	a, 0x5231
+      000009 6B 01            [ 1]  103 	ld	(0x01, sp), a
+                                    104 ;	src/main.c: 10: (void)tmp;
+                                    105 ;	src/main.c: 11: }
+      00000B 84               [ 1]  106 	pop	a
+      00000C 81               [ 4]  107 	ret
+                                    108 ;	src/main.c: 13: void uart_write_c(unsigned char c)
+                                    109 ;	-----------------------------------------
+                                    110 ;	 function uart_write_c
+                                    111 ;	-----------------------------------------
+      00000D                        112 _uart_write_c:
+      00000D 88               [ 1]  113 	push	a
+      00000E 6B 01            [ 1]  114 	ld	(0x01, sp), a
+                                    115 ;	src/main.c: 15: while(!(USART1_SR & USART_SR_TXE));
+      000010                        116 00101$:
+      000010 C6 52 30         [ 1]  117 	ld	a, 0x5230
+      000013 2A FB            [ 1]  118 	jrpl	00101$
+                                    119 ;	src/main.c: 16: USART1_DR = c;
+      000015 AE 52 31         [ 2]  120 	ldw	x, #0x5231
+      000018 7B 01            [ 1]  121 	ld	a, (0x01, sp)
+      00001A F7               [ 1]  122 	ld	(x), a
+                                    123 ;	src/main.c: 17: }
+      00001B 84               [ 1]  124 	pop	a
+      00001C 81               [ 4]  125 	ret
+                                    126 ;	src/main.c: 19: void uart_write(const char *str)
+                                    127 ;	-----------------------------------------
+                                    128 ;	 function uart_write
+                                    129 ;	-----------------------------------------
+      00001D                        130 _uart_write:
+                                    131 ;	src/main.c: 21: while(*str)
+      00001D                        132 00101$:
+      00001D F6               [ 1]  133 	ld	a, (x)
+      00001E 26 01            [ 1]  134 	jrne	00121$
+      000020 81               [ 4]  135 	ret
+      000021                        136 00121$:
+                                    137 ;	src/main.c: 23: uart_write_c(*str);
+      000021 89               [ 2]  138 	pushw	x
+      000022 CDr00r0D         [ 4]  139 	call	_uart_write_c
+      000025 85               [ 2]  140 	popw	x
+                                    141 ;	src/main.c: 24: str++;
+      000026 5C               [ 1]  142 	incw	x
+      000027 20 F4            [ 2]  143 	jra	00101$
+                                    144 ;	src/main.c: 26: }
+      000029 81               [ 4]  145 	ret
+                                    146 ;	src/main.c: 28: unsigned char uart_read(unsigned char *buf, unsigned char len)
                                     147 ;	-----------------------------------------
-      000027                        148 _uart_read:
-      000027 52 04            [ 2]  149 	sub	sp, #4
-      000029 1F 02            [ 2]  150 	ldw	(0x02, sp), x
-      00002B 6B 01            [ 1]  151 	ld	(0x01, sp), a
-                                    152 ;	src/main.c: 31: while (!(USART1_SR & USART_SR_IDLE) && i < len)
-      00002D 0F 04            [ 1]  153 	clr	(0x04, sp)
-      00002F                        154 00102$:
-      00002F C6 52 30         [ 1]  155 	ld	a, 0x5230
-                                    156 ;	src/main.c: 33: uart_read_c(buf + i);
-      000032 5F               [ 1]  157 	clrw	x
-      000033 41               [ 1]  158 	exg	a, xl
-      000034 7B 04            [ 1]  159 	ld	a, (0x04, sp)
-      000036 41               [ 1]  160 	exg	a, xl
-      000037 72 FB 02         [ 2]  161 	addw	x, (0x02, sp)
-                                    162 ;	src/main.c: 31: while (!(USART1_SR & USART_SR_IDLE) && i < len)
-      00003A A5 10            [ 1]  163 	bcp	a, #0x10
-      00003C 26 0D            [ 1]  164 	jrne	00104$
-      00003E 7B 04            [ 1]  165 	ld	a, (0x04, sp)
-      000040 11 01            [ 1]  166 	cp	a, (0x01, sp)
-      000042 24 07            [ 1]  167 	jrnc	00104$
-                                    168 ;	src/main.c: 33: uart_read_c(buf + i);
-      000044 CDr00r1D         [ 4]  169 	call	_uart_read_c
-                                    170 ;	src/main.c: 34: i++;
-      000047 0C 04            [ 1]  171 	inc	(0x04, sp)
-      000049 20 E4            [ 2]  172 	jra	00102$
-      00004B                        173 00104$:
-                                    174 ;	src/main.c: 36: buf[i] = '\0';
-      00004B 7F               [ 1]  175 	clr	(x)
-                                    176 ;	src/main.c: 37: }
-      00004C 5B 04            [ 2]  177 	addw	sp, #4
-      00004E 81               [ 4]  178 	ret
-                                    179 ;	src/main.c: 39: void delay_ms(unsigned long ms)
-                                    180 ;	-----------------------------------------
-                                    181 ;	 function delay_ms
-                                    182 ;	-----------------------------------------
-      00004F                        183 _delay_ms:
-      00004F 52 04            [ 2]  184 	sub	sp, #4
-                                    185 ;	src/main.c: 41: unsigned long cycles = 960 * ms;
-      000051 1E 09            [ 2]  186 	ldw	x, (0x09, sp)
-      000053 89               [ 2]  187 	pushw	x
-      000054 1E 09            [ 2]  188 	ldw	x, (0x09, sp)
-      000056 89               [ 2]  189 	pushw	x
-      000057 4B C0            [ 1]  190 	push	#0xc0
-      000059 4B 03            [ 1]  191 	push	#0x03
-      00005B 5F               [ 1]  192 	clrw	x
-      00005C 89               [ 2]  193 	pushw	x
-                                    194 ;	src/main.c: 42: while(cycles--);
-      00005D CDr00r00         [ 4]  195 	call	__mullong
-      000060 5B 08            [ 2]  196 	addw	sp, #8
-      000062                        197 00101$:
-      000062 1F 03            [ 2]  198 	ldw	(0x03, sp), x
-      000064 17 01            [ 2]  199 	ldw	(0x01, sp), y
-      000066 1D 00 01         [ 2]  200 	subw	x, #0x0001
-      000069 24 02            [ 1]  201 	jrnc	00114$
-      00006B 90 5A            [ 2]  202 	decw	y
-      00006D                        203 00114$:
-      00006D 0D 04            [ 1]  204 	tnz	(0x04, sp)
-      00006F 26 F1            [ 1]  205 	jrne	00101$
-      000071 0D 03            [ 1]  206 	tnz	(0x03, sp)
-      000073 26 ED            [ 1]  207 	jrne	00101$
-      000075 0D 02            [ 1]  208 	tnz	(0x02, sp)
-      000077 26 E9            [ 1]  209 	jrne	00101$
-      000079 0D 01            [ 1]  210 	tnz	(0x01, sp)
-      00007B 26 E5            [ 1]  211 	jrne	00101$
-                                    212 ;	src/main.c: 43: }
-      00007D 1E 05            [ 2]  213 	ldw	x, (5, sp)
-      00007F 5B 0A            [ 2]  214 	addw	sp, #10
-      000081 FC               [ 2]  215 	jp	(x)
-                                    216 ;	src/main.c: 45: int main(void)
-                                    217 ;	-----------------------------------------
-                                    218 ;	 function main
-                                    219 ;	-----------------------------------------
-      000082                        220 _main:
-      000082 52 14            [ 2]  221 	sub	sp, #20
-                                    222 ;	src/main.c: 48: unsigned char	buf[20] = {0};
-      000084 0F 01            [ 1]  223 	clr	(0x01, sp)
-      000086 0F 02            [ 1]  224 	clr	(0x02, sp)
-      000088 0F 03            [ 1]  225 	clr	(0x03, sp)
-      00008A 0F 04            [ 1]  226 	clr	(0x04, sp)
-      00008C 0F 05            [ 1]  227 	clr	(0x05, sp)
-      00008E 0F 06            [ 1]  228 	clr	(0x06, sp)
-      000090 0F 07            [ 1]  229 	clr	(0x07, sp)
-      000092 0F 08            [ 1]  230 	clr	(0x08, sp)
-      000094 0F 09            [ 1]  231 	clr	(0x09, sp)
-      000096 0F 0A            [ 1]  232 	clr	(0x0a, sp)
-      000098 0F 0B            [ 1]  233 	clr	(0x0b, sp)
-      00009A 0F 0C            [ 1]  234 	clr	(0x0c, sp)
-      00009C 0F 0D            [ 1]  235 	clr	(0x0d, sp)
-      00009E 0F 0E            [ 1]  236 	clr	(0x0e, sp)
-      0000A0 0F 0F            [ 1]  237 	clr	(0x0f, sp)
-      0000A2 0F 10            [ 1]  238 	clr	(0x10, sp)
-      0000A4 0F 11            [ 1]  239 	clr	(0x11, sp)
-      0000A6 0F 12            [ 1]  240 	clr	(0x12, sp)
-      0000A8 0F 13            [ 1]  241 	clr	(0x13, sp)
-      0000AA 0F 14            [ 1]  242 	clr	(0x14, sp)
-                                    243 ;	src/main.c: 49: CLK_CKDIVR = 0x00;
-      0000AC 35 00 50 C6      [ 1]  244 	mov	0x50c6+0, #0x00
-                                    245 ;	src/main.c: 50: CLK_PCKENR1 = 0xFF; // Enable peripherals
-      0000B0 35 FF 50 C7      [ 1]  246 	mov	0x50c7+0, #0xff
-                                    247 ;	src/main.c: 55: USART1_CR2 |= USART_CR2_TEN; // Allow TX & RX
-      0000B4 C6 52 35         [ 1]  248 	ld	a, 0x5235
-      0000B7 AA 08            [ 1]  249 	or	a, #0x08
-                                    250 ;	src/main.c: 56: USART1_CR2 |= USART_CR2_REN; // Allow TX & RX
-      0000B9 C7 52 35         [ 1]  251 	ld	0x5235, a
-      0000BC AA 04            [ 1]  252 	or	a, #0x04
-      0000BE C7 52 35         [ 1]  253 	ld	0x5235, a
-                                    254 ;	src/main.c: 57: USART1_CR3 &= ~(USART_CR3_STOP1 | USART_CR3_STOP2); // 1 stop bit
-      0000C1 C6 52 36         [ 1]  255 	ld	a, 0x5236
-      0000C4 A4 CF            [ 1]  256 	and	a, #0xcf
-      0000C6 C7 52 36         [ 1]  257 	ld	0x5236, a
-                                    258 ;	src/main.c: 58: USART1_BRR2 = 0x03; USART1_BRR1 = 0x68; // 9600 baud@16MHz CLK
-      0000C9 35 03 52 33      [ 1]  259 	mov	0x5233+0, #0x03
-      0000CD 35 68 52 32      [ 1]  260 	mov	0x5232+0, #0x68
-                                    261 ;	src/main.c: 60: while(1)
-      0000D1                        262 00104$:
-                                    263 ;	src/main.c: 63: if (!(USART1_SR & USART_SR_RXNE))
-      0000D1 72 0A 52 30 0C   [ 2]  264 	btjt	0x5230, #5, 00102$
-                                    265 ;	src/main.c: 65: uart_read((unsigned char *) buf, 20);
-      0000D6 A6 14            [ 1]  266 	ld	a, #0x14
-      0000D8 96               [ 1]  267 	ldw	x, sp
-      0000D9 5C               [ 1]  268 	incw	x
-      0000DA CDr00r27         [ 4]  269 	call	_uart_read
-                                    270 ;	src/main.c: 66: uart_write((unsigned char *) buf);
-      0000DD 96               [ 1]  271 	ldw	x, sp
-      0000DE 5C               [ 1]  272 	incw	x
-      0000DF CDr00r10         [ 4]  273 	call	_uart_write
-      0000E2                        274 00102$:
-                                    275 ;	src/main.c: 69: uart_write("Hello World!\n");
-      0000E2 AEr00r00         [ 2]  276 	ldw	x, #(___str_0+0)
-      0000E5 CDr00r10         [ 4]  277 	call	_uart_write
-                                    278 ;	src/main.c: 70: delay_ms(1000);	
-      0000E8 4B E8            [ 1]  279 	push	#0xe8
-      0000EA 4B 03            [ 1]  280 	push	#0x03
-      0000EC 5F               [ 1]  281 	clrw	x
-      0000ED 89               [ 2]  282 	pushw	x
-      0000EE CDr00r4F         [ 4]  283 	call	_delay_ms
-      0000F1 20 DE            [ 2]  284 	jra	00104$
-                                    285 ;	src/main.c: 72: }
-      0000F3 5B 14            [ 2]  286 	addw	sp, #20
-      0000F5 81               [ 4]  287 	ret
-                                    288 	.area CODE
-                                    289 	.area CONST
-                                    290 	.area CONST
-      000000                        291 ___str_0:
-      000000 48 65 6C 6C 6F 20 57   292 	.ascii "Hello World!"
-             6F 72 6C 64 21
-      00000C 0A                     293 	.db 0x0a
-      00000D 00                     294 	.db 0x00
-                                    295 	.area CODE
-                                    296 	.area INITIALIZER
-                                    297 	.area CABS (ABS)
+                                    148 ;	 function uart_read
+                                    149 ;	-----------------------------------------
+      00002A                        150 _uart_read:
+      00002A 52 04            [ 2]  151 	sub	sp, #4
+      00002C 1F 02            [ 2]  152 	ldw	(0x02, sp), x
+      00002E 6B 01            [ 1]  153 	ld	(0x01, sp), a
+                                    154 ;	src/main.c: 34: while (1)
+      000030 0F 04            [ 1]  155 	clr	(0x04, sp)
+      000032                        156 00108$:
+                                    157 ;	src/main.c: 36: if (USART1_SR & USART_SR_RXNE)	// Data register not empty
+      000032 72 0B 52 30 16   [ 2]  158 	btjf	0x5230, #5, 00104$
+                                    159 ;	src/main.c: 38: data = USART1_DR;	// clear RXNE
+      000037 C6 52 31         [ 1]  160 	ld	a, 0x5231
+                                    161 ;	src/main.c: 39: if (i < len)
+      00003A 88               [ 1]  162 	push	a
+      00003B 7B 05            [ 1]  163 	ld	a, (0x05, sp)
+      00003D 11 02            [ 1]  164 	cp	a, (0x02, sp)
+      00003F 84               [ 1]  165 	pop	a
+      000040 24 0B            [ 1]  166 	jrnc	00104$
+                                    167 ;	src/main.c: 41: buf[i] = data;
+      000042 5F               [ 1]  168 	clrw	x
+      000043 41               [ 1]  169 	exg	a, xl
+      000044 7B 04            [ 1]  170 	ld	a, (0x04, sp)
+      000046 41               [ 1]  171 	exg	a, xl
+      000047 72 FB 02         [ 2]  172 	addw	x, (0x02, sp)
+      00004A F7               [ 1]  173 	ld	(x), a
+                                    174 ;	src/main.c: 42: i++;
+      00004B 0C 04            [ 1]  175 	inc	(0x04, sp)
+      00004D                        176 00104$:
+                                    177 ;	src/main.c: 45: if (USART1_SR & USART_SR_IDLE)
+      00004D 72 09 52 30 E0   [ 2]  178 	btjf	0x5230, #4, 00108$
+                                    179 ;	src/main.c: 47: UART1_ClearIdle();
+      000052 CDr00r00         [ 4]  180 	call	_UART1_ClearIdle
+                                    181 ;	src/main.c: 53: buf[i] = '\0';
+      000055 5F               [ 1]  182 	clrw	x
+      000056 7B 04            [ 1]  183 	ld	a, (0x04, sp)
+      000058 97               [ 1]  184 	ld	xl, a
+      000059 72 FB 02         [ 2]  185 	addw	x, (0x02, sp)
+      00005C 7F               [ 1]  186 	clr	(x)
+                                    187 ;	src/main.c: 54: return (i);
+      00005D 7B 04            [ 1]  188 	ld	a, (0x04, sp)
+                                    189 ;	src/main.c: 55: }
+      00005F 5B 04            [ 2]  190 	addw	sp, #4
+      000061 81               [ 4]  191 	ret
+                                    192 ;	src/main.c: 57: void delay_ms(unsigned long ms)
+                                    193 ;	-----------------------------------------
+                                    194 ;	 function delay_ms
+                                    195 ;	-----------------------------------------
+      000062                        196 _delay_ms:
+      000062 52 04            [ 2]  197 	sub	sp, #4
+                                    198 ;	src/main.c: 59: unsigned long cycles = 1318 * ms;
+      000064 1E 09            [ 2]  199 	ldw	x, (0x09, sp)
+      000066 89               [ 2]  200 	pushw	x
+      000067 1E 09            [ 2]  201 	ldw	x, (0x09, sp)
+      000069 89               [ 2]  202 	pushw	x
+      00006A 4B 26            [ 1]  203 	push	#0x26
+      00006C 4B 05            [ 1]  204 	push	#0x05
+      00006E 5F               [ 1]  205 	clrw	x
+      00006F 89               [ 2]  206 	pushw	x
+                                    207 ;	src/main.c: 60: while(cycles--);
+      000070 CDr00r00         [ 4]  208 	call	__mullong
+      000073 5B 08            [ 2]  209 	addw	sp, #8
+      000075                        210 00101$:
+      000075 1F 03            [ 2]  211 	ldw	(0x03, sp), x
+      000077 17 01            [ 2]  212 	ldw	(0x01, sp), y
+      000079 1D 00 01         [ 2]  213 	subw	x, #0x0001
+      00007C 24 02            [ 1]  214 	jrnc	00114$
+      00007E 90 5A            [ 2]  215 	decw	y
+      000080                        216 00114$:
+      000080 0D 04            [ 1]  217 	tnz	(0x04, sp)
+      000082 26 F1            [ 1]  218 	jrne	00101$
+      000084 0D 03            [ 1]  219 	tnz	(0x03, sp)
+      000086 26 ED            [ 1]  220 	jrne	00101$
+      000088 0D 02            [ 1]  221 	tnz	(0x02, sp)
+      00008A 26 E9            [ 1]  222 	jrne	00101$
+      00008C 0D 01            [ 1]  223 	tnz	(0x01, sp)
+      00008E 26 E5            [ 1]  224 	jrne	00101$
+                                    225 ;	src/main.c: 61: }
+      000090 1E 05            [ 2]  226 	ldw	x, (5, sp)
+      000092 5B 0A            [ 2]  227 	addw	sp, #10
+      000094 FC               [ 2]  228 	jp	(x)
+                                    229 ;	src/main.c: 63: int main(void)
+                                    230 ;	-----------------------------------------
+                                    231 ;	 function main
+                                    232 ;	-----------------------------------------
+      000095                        233 _main:
+      000095 52 14            [ 2]  234 	sub	sp, #20
+                                    235 ;	src/main.c: 66: unsigned char	buf[20] = {0};
+      000097 0F 01            [ 1]  236 	clr	(0x01, sp)
+      000099 0F 02            [ 1]  237 	clr	(0x02, sp)
+      00009B 0F 03            [ 1]  238 	clr	(0x03, sp)
+      00009D 0F 04            [ 1]  239 	clr	(0x04, sp)
+      00009F 0F 05            [ 1]  240 	clr	(0x05, sp)
+      0000A1 0F 06            [ 1]  241 	clr	(0x06, sp)
+      0000A3 0F 07            [ 1]  242 	clr	(0x07, sp)
+      0000A5 0F 08            [ 1]  243 	clr	(0x08, sp)
+      0000A7 0F 09            [ 1]  244 	clr	(0x09, sp)
+      0000A9 0F 0A            [ 1]  245 	clr	(0x0a, sp)
+      0000AB 0F 0B            [ 1]  246 	clr	(0x0b, sp)
+      0000AD 0F 0C            [ 1]  247 	clr	(0x0c, sp)
+      0000AF 0F 0D            [ 1]  248 	clr	(0x0d, sp)
+      0000B1 0F 0E            [ 1]  249 	clr	(0x0e, sp)
+      0000B3 0F 0F            [ 1]  250 	clr	(0x0f, sp)
+      0000B5 0F 10            [ 1]  251 	clr	(0x10, sp)
+      0000B7 0F 11            [ 1]  252 	clr	(0x11, sp)
+      0000B9 0F 12            [ 1]  253 	clr	(0x12, sp)
+      0000BB 0F 13            [ 1]  254 	clr	(0x13, sp)
+      0000BD 0F 14            [ 1]  255 	clr	(0x14, sp)
+                                    256 ;	src/main.c: 67: CLK_CKDIVR = 0x00;
+      0000BF 35 00 50 C6      [ 1]  257 	mov	0x50c6+0, #0x00
+                                    258 ;	src/main.c: 68: CLK_PCKENR1 = 0xFF; // Enable peripherals
+      0000C3 35 FF 50 C7      [ 1]  259 	mov	0x50c7+0, #0xff
+                                    260 ;	src/main.c: 73: USART1_CR2 |= USART_CR2_TEN; // Allow TX & RX
+      0000C7 C6 52 35         [ 1]  261 	ld	a, 0x5235
+      0000CA AA 08            [ 1]  262 	or	a, #0x08
+                                    263 ;	src/main.c: 74: USART1_CR2 |= USART_CR2_REN; // Allow TX & RX
+      0000CC C7 52 35         [ 1]  264 	ld	0x5235, a
+      0000CF AA 04            [ 1]  265 	or	a, #0x04
+      0000D1 C7 52 35         [ 1]  266 	ld	0x5235, a
+                                    267 ;	src/main.c: 75: USART1_CR3 &= ~(USART_CR3_STOP1 | USART_CR3_STOP2); // 1 stop bit
+      0000D4 C6 52 36         [ 1]  268 	ld	a, 0x5236
+      0000D7 A4 CF            [ 1]  269 	and	a, #0xcf
+      0000D9 C7 52 36         [ 1]  270 	ld	0x5236, a
+                                    271 ;	src/main.c: 76: USART1_BRR2 = 0x03; USART1_BRR1 = 0x68; // 9600 baud@16MHz CLK
+      0000DC 35 03 52 33      [ 1]  272 	mov	0x5233+0, #0x03
+      0000E0 35 68 52 32      [ 1]  273 	mov	0x5232+0, #0x68
+                                    274 ;	src/main.c: 78: while(1)
+      0000E4                        275 00107$:
+                                    276 ;	src/main.c: 81: i = uart_read((unsigned char *) buf, 20);
+      0000E4 A6 14            [ 1]  277 	ld	a, #0x14
+      0000E6 96               [ 1]  278 	ldw	x, sp
+      0000E7 5C               [ 1]  279 	incw	x
+      0000E8 CDr00r2A         [ 4]  280 	call	_uart_read
+                                    281 ;	src/main.c: 82: if (i)
+      0000EB 4D               [ 1]  282 	tnz	a
+      0000EC 27 05            [ 1]  283 	jreq	00113$
+                                    284 ;	src/main.c: 83: uart_write((unsigned char *) buf);
+      0000EE 96               [ 1]  285 	ldw	x, sp
+      0000EF 5C               [ 1]  286 	incw	x
+      0000F0 CDr00r1D         [ 4]  287 	call	_uart_write
+                                    288 ;	src/main.c: 85: while (i < 20)
+      0000F3                        289 00113$:
+      0000F3 90 5F            [ 1]  290 	clrw	y
+      0000F5                        291 00103$:
+      0000F5 90 A3 00 14      [ 2]  292 	cpw	y, #0x0014
+      0000F9 2E 10            [ 1]  293 	jrsge	00105$
+                                    294 ;	src/main.c: 86: buf[i--] = 0;
+      0000FB 93               [ 1]  295 	ldw	x, y
+      0000FC 89               [ 2]  296 	pushw	x
+      0000FD 96               [ 1]  297 	ldw	x, sp
+      0000FE 1C 00 03         [ 2]  298 	addw	x, #3
+      000101 72 FB 01         [ 2]  299 	addw	x, (1, sp)
+      000104 5B 02            [ 2]  300 	addw	sp, #2
+      000106 90 5A            [ 2]  301 	decw	y
+      000108 7F               [ 1]  302 	clr	(x)
+      000109 20 EA            [ 2]  303 	jra	00103$
+      00010B                        304 00105$:
+                                    305 ;	src/main.c: 87: uart_write("Nothing\n");
+      00010B AEr00r00         [ 2]  306 	ldw	x, #(___str_0+0)
+      00010E CDr00r1D         [ 4]  307 	call	_uart_write
+                                    308 ;	src/main.c: 88: delay_ms(1000);
+      000111 4B E8            [ 1]  309 	push	#0xe8
+      000113 4B 03            [ 1]  310 	push	#0x03
+      000115 5F               [ 1]  311 	clrw	x
+      000116 89               [ 2]  312 	pushw	x
+      000117 CDr00r62         [ 4]  313 	call	_delay_ms
+      00011A 20 C8            [ 2]  314 	jra	00107$
+                                    315 ;	src/main.c: 90: }
+      00011C 5B 14            [ 2]  316 	addw	sp, #20
+      00011E 81               [ 4]  317 	ret
+                                    318 	.area CODE
+                                    319 	.area CONST
+                                    320 	.area CONST
+      000000                        321 ___str_0:
+      000000 4E 6F 74 68 69 6E 67   322 	.ascii "Nothing"
+      000007 0A                     323 	.db 0x0a
+      000008 00                     324 	.db 0x00
+                                    325 	.area CODE
+                                    326 	.area INITIALIZER
+                                    327 	.area CABS (ABS)

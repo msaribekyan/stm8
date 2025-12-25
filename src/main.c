@@ -1,6 +1,15 @@
 #include "stm8s003.h"
 #include "clock.h"
 
+static void UART1_ClearIdle(void)
+{
+    volatile unsigned char tmp;
+
+    tmp = USART1_SR;  // MUST read SR first
+    tmp = USART1_DR;  // THEN read DR
+    (void)tmp;
+}
+
 void uart_write_c(unsigned char c)
 {
 	while(!(USART1_SR & USART_SR_TXE));
@@ -16,35 +25,44 @@ void uart_write(const char *str)
 	}
 }
 
-void uart_read_c(unsigned char *c)
+unsigned char uart_read(unsigned char *buf, unsigned char len)
 {
-	while (!(USART1_SR & USART_SR_RXNE));    // USART_SR[5]:RXNE   Read data register not empty
-//	PD_ODR |= (1<<2);                                      //   0: Data is not received, 1: Received data is ready to be read.
-	*c = USART1_DR;
-}
-
-void uart_read(unsigned char *buf, unsigned char len)
-{
-	unsigned char	i;
+	unsigned char i;
+	unsigned char data;
 
 	i = 0;
-	while (!(USART1_SR & USART_SR_IDLE) && i < len)
+	while (1)
 	{
-		uart_read_c(buf + i);
-		i++;
+		if (USART1_SR & USART_SR_RXNE)	// Data register not empty
+		{
+			data = USART1_DR;	// clear RXNE
+			if (i < len)
+			{
+				buf[i] = data;
+				i++;
+			}
+		}
+		if (USART1_SR & USART_SR_IDLE)
+		{
+			UART1_ClearIdle();
+			//(void)USART1_SR;	// Empty read to clear the idle line
+			//(void)USART1_DR;	// Empty read to clear the idle line
+			break;
+		}
 	}
 	buf[i] = '\0';
+	return (i);
 }
 
 void delay_ms(unsigned long ms)
 {
-	unsigned long cycles = 960 * ms;
+	unsigned long cycles = 1318 * ms;
 	while(cycles--);
 }
 
 int main(void)
 {
-//	int		i;
+	int		i;
 	unsigned char	buf[20] = {0};
 	CLK_CKDIVR = 0x00;
 	CLK_PCKENR1 = 0xFF; // Enable peripherals
@@ -60,13 +78,13 @@ int main(void)
 	while(1)
 	{
 
-		if (!(USART1_SR & USART_SR_RXNE))
-		{
-			uart_read((unsigned char *) buf, 20);
+		i = uart_read((unsigned char *) buf, 20);
+		if (i)
 			uart_write((unsigned char *) buf);
-		}
-//		uart_write((unsigned char*) buf);
-		uart_write("Hello World!\n");
-		delay_ms(1000);	
+		i = 0;
+		while (i < 20)
+			buf[i--] = 0;
+		uart_write("Nothing\n");
+		delay_ms(1000);
 	}
 }
