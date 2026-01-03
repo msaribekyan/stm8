@@ -1,6 +1,13 @@
 #include "stm8s003.h"
 #include "clock.h"
 
+#define ISR(name,vector) void name(void) __interrupt(vector - 2)
+#define rim()                 {__asm__("rim\n");}  /* enable interrupts */
+#define UART1_R_RXNE_vector                  0x14
+
+static unsigned char buf[20] = {0};
+static unsigned char len = 0;
+
 static void UART1_ClearIdle(void)
 {
     volatile unsigned char tmp;
@@ -54,6 +61,10 @@ unsigned char uart_read(unsigned char *buf, unsigned char len)
 	return (i);
 }
 
+ISR(uart1_isr, UART1_R_RXNE_vector) {
+	len = uart_read((unsigned char *) buf, 20);
+}
+
 void delay_ms(unsigned long ms)
 {
 	unsigned long cycles = 1318 * ms;
@@ -62,8 +73,6 @@ void delay_ms(unsigned long ms)
 
 int main(void)
 {
-	int		i;
-	unsigned char	buf[20] = {0};
 	CLK_CKDIVR = 0x00;
 	CLK_PCKENR1 = 0xFF; // Enable peripherals
 
@@ -75,16 +84,19 @@ int main(void)
 	USART1_CR3 &= ~(USART_CR3_STOP1 | USART_CR3_STOP2); // 1 stop bit
 	USART1_BRR2 = 0x03; USART1_BRR1 = 0x68; // 9600 baud@16MHz CLK
 	
+	USART1_CR2 |= USART_CR2_RIEN;
+
+	rim();
+
 	while(1)
 	{
-
-		i = uart_read((unsigned char *) buf, 20);
-		if (i)
+		if (len != 0)
+		{
 			uart_write((unsigned char *) buf);
-		i = 0;
-		while (i < 20)
-			buf[i--] = 0;
-		uart_write("Nothing\n");
-		delay_ms(1000);
+			len = 0;
+			while (len < 20)
+				buf[len++] = 0;
+			len = 0;
+		}
 	}
 }
